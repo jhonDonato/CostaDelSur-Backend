@@ -36,11 +36,11 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+        // AGREGADO: Puerto 9002 (donde corre tu frontend)
         configuration.setAllowedOrigins(Arrays.asList(
-            "http://localhost:9002", 
-            "https://scentalux-frontend.vercel.app",
-            "https://scentalux-frontend-git-main-jhons-proyectos-be5c6adf.vercel.app",
-            "https://scentalux-frontend-ib6pe8zz8-jhons-proyectos-be5c6adf.vercel.app"
+                "http://localhost:3000",
+                "http://localhost:9090",
+                "http://localhost:9002"  // <--- ¡Esta es la clave!
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "X-Requested-With", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
@@ -74,21 +74,22 @@ public class WebSecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
-                    .requestMatchers(antMatcher("/health")).permitAll()
-                    .requestMatchers(antMatcher("/auth/login")).permitAll()
-                    .requestMatchers(antMatcher("/roles/**")).permitAll()
-                    .requestMatchers(antMatcher("/usuarios/**")).permitAll()
-                    .requestMatchers(antMatcher("/mail/**")).permitAll()
-                    .requestMatchers(antMatcher("/perfumes/**")).permitAll()
-                    .requestMatchers(antMatcher("/api/upload/**")).permitAll()
-                    .requestMatchers(antMatcher("/uploads/**")).permitAll()
-                    .requestMatchers(antMatcher("/orders/my-orders")).authenticated()
-                    .requestMatchers(antMatcher("/orders")).authenticated()
-                    .requestMatchers(antMatcher("/orders/**")).authenticated()
+                        .requestMatchers(antMatcher("/health")).permitAll()
+                        .requestMatchers(antMatcher("/auth/login")).permitAll()
 
-                    .requestMatchers(antMatcher("/api/menu-items/**")).permitAll() // Temporal para pruebas
+                        // Endpoints públicos
+                        .requestMatchers(antMatcher("/api/upload/**")).permitAll() // ✅ Importante para Cloudinary
+                        .requestMatchers(antMatcher("/api/menu-items/**")).permitAll()
 
-                    .anyRequest().authenticated()   
+                        // Mantengo estos por si acaso los usas, pero podrías borrarlos si son del proyecto viejo
+                        .requestMatchers(antMatcher("/roles/**")).permitAll()
+                        .requestMatchers(antMatcher("/usuarios/**")).permitAll()
+                        .requestMatchers(antMatcher("/uploads/**")).permitAll()
+
+                        // Rutas protegidas
+                        .requestMatchers(antMatcher("/orders/**")).authenticated()
+
+                        .anyRequest().authenticated()
                 )
                 .formLogin(AbstractHttpConfigurer::disable)
                 .exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint));

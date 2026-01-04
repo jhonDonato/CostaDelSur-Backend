@@ -1,15 +1,11 @@
 package com.costadelsur.api.controller;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.costadelsur.api.service.impl.CloudinaryService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.UUID;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,19 +14,17 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 public class FileUploadController {
 
-    @Value("${file.upload-dir:uploads}")
-    private String uploadDir;
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     @PostMapping("/image")
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
         try {
-            // Crear directorio si no existe
-            Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "El archivo está vacío"));
             }
 
-            // Validar tipo de archivo
+            // Validar que sea una imagen
             String contentType = file.getContentType();
             if (contentType == null || !contentType.startsWith("image/")) {
                 Map<String, String> errorResponse = new HashMap<>();
@@ -38,107 +32,53 @@ public class FileUploadController {
                 return ResponseEntity.badRequest().body(errorResponse);
             }
 
-            // Generar nombre único
-            String originalFileName = file.getOriginalFilename();
-            String fileExtension = "";
-            if (originalFileName != null && originalFileName.contains(".")) {
-                fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
-            }
-            String fileName = UUID.randomUUID().toString() + fileExtension;
+            // Subir a Cloudinary
+            String url = cloudinaryService.uploadFile(file);
 
-            // Guardar archivo
-            Path filePath = uploadPath.resolve(fileName);
-            Files.copy(file.getInputStream(), filePath);
-
-            // URL para acceder a la imagen
-            String fileUrl = "/uploads/" + fileName;
-
+            // Responder con la URL (Formato JSON esperado por el frontend)
             Map<String, String> successResponse = new HashMap<>();
-            successResponse.put("url", fileUrl);
+            successResponse.put("url", url);
 
             return ResponseEntity.ok(successResponse);
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Error al subir la imagen");
+            errorResponse.put("error", "Error al subir la imagen: " + e.getMessage());
             return ResponseEntity.internalServerError().body(errorResponse);
         }
     }
-    // 🔥 NUEVO MÉTODO PARA SUBIR COMPROBANTES DE PAGO
+
     @PostMapping("/receipt")
     public ResponseEntity<?> uploadReceipt(@RequestParam("file") MultipartFile file) {
         try {
-            // Crear directorio si no existe
-            Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "El archivo está vacío"));
             }
 
-            // Validar tipo de archivo (imágenes y PDFs)
+            // Validar tipo (Imagen o PDF)
             String contentType = file.getContentType();
-            if (contentType == null || 
-                (!contentType.startsWith("image/") && !contentType.equals("application/pdf"))) {
+            if (contentType == null ||
+                    (!contentType.startsWith("image/") && !contentType.equals("application/pdf"))) {
                 Map<String, String> errorResponse = new HashMap<>();
-                errorResponse.put("error", "Solo se permiten archivos de imagen (JPG, PNG, etc.) o PDF");
+                errorResponse.put("error", "Solo se permiten imágenes o PDF");
                 return ResponseEntity.badRequest().body(errorResponse);
             }
 
-            // Validar tamaño del archivo (máximo 5MB)
-            if (file.getSize() > 5 * 1024 * 1024) {
-                Map<String, String> errorResponse = new HashMap<>();
-                errorResponse.put("error", "El archivo no puede ser mayor a 5MB");
-                return ResponseEntity.badRequest().body(errorResponse);
-            }
+            // Subir a Cloudinary
+            String url = cloudinaryService.uploadFile(file);
 
-            // Generar nombre único para comprobante
-            String originalFileName = file.getOriginalFilename();
-            String fileExtension = "";
-            if (originalFileName != null && originalFileName.contains(".")) {
-                fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
-            }
-            String fileName = "receipt_" + UUID.randomUUID().toString() + fileExtension;
-
-            // Guardar archivo
-            Path filePath = uploadPath.resolve(fileName);
-            Files.copy(file.getInputStream(), filePath);
-
-            // URL para acceder al archivo
-            String fileUrl = "/uploads/" + fileName;
-
+            // Responder con metadatos
             Map<String, String> successResponse = new HashMap<>();
-            successResponse.put("url", fileUrl);
-            successResponse.put("fileName", fileName);
+            successResponse.put("url", url);
+            successResponse.put("fileName", file.getOriginalFilename());
             successResponse.put("fileType", contentType);
-            successResponse.put("size", String.valueOf(file.getSize()));
 
             return ResponseEntity.ok(successResponse);
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", "Error al subir el comprobante: " + e.getMessage());
             return ResponseEntity.internalServerError().body(errorResponse);
-        }
-    }
-
-    // Método opcional para eliminar archivos (si lo necesitas)
-    @DeleteMapping("/file")
-    public ResponseEntity<?> deleteFile(@RequestBody Map<String, String> request) {
-        try {
-            String fileName = request.get("fileName");
-            if (fileName == null || fileName.isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Nombre de archivo requerido"));
-            }
-
-            Path filePath = Paths.get(uploadDir).resolve(fileName);
-            if (Files.exists(filePath)) {
-                Files.delete(filePath);
-                return ResponseEntity.ok(Map.of("message", "Archivo eliminado correctamente"));
-            } else {
-                return ResponseEntity.status(404).body(Map.of("error", "Archivo no encontrado"));
-            }
-        } catch (IOException e) {
-            return ResponseEntity.internalServerError()
-                    .body(Map.of("error", "Error al eliminar el archivo: " + e.getMessage()));
         }
     }
 }
