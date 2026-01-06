@@ -1,11 +1,6 @@
 package com.costadelsur.api.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class MenuItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     
     @Column(nullable = false, length = 100)
     private String name;
@@ -30,8 +25,8 @@ public class MenuItem {
     private Double price;
     
     @Column(length = 500)
-    private String image; // URL de la imagen
-    
+    private String image;
+
     @Column(nullable = false)
     private Integer stock = 0;
     
@@ -40,4 +35,8 @@ public class MenuItem {
     
     @Column(nullable = false)
     private Boolean published = true;
+
+    @ManyToOne
+    @JoinColumn(name = "discount_id")
+    private Discount discount;
 }

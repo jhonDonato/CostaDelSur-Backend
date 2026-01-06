@@ -28,7 +28,7 @@ public class MenuItemServiceImpl implements MenuItemService {
     }
     
     @Override
-    public MenuItemDTO findById(Integer id) {
+    public MenuItemDTO findById(Long id) {
         MenuItem item = repository.findById(id)
             .orElseThrow(() -> new ModelNotFoundException("Item del menú no encontrado con ID: " + id));
         return mapperUtil.map(item, MenuItemDTO.class);
@@ -44,7 +44,7 @@ public class MenuItemServiceImpl implements MenuItemService {
     
     @Override
     @Transactional
-    public MenuItemDTO update(MenuItemDTO dto, Integer id) {
+    public MenuItemDTO update(MenuItemDTO dto, Long id) {
         // Verificar que existe
         MenuItem existingItem = repository.findById(id)
             .orElseThrow(() -> new ModelNotFoundException("Item del menú no encontrado con ID: " + id));
@@ -66,7 +66,7 @@ public class MenuItemServiceImpl implements MenuItemService {
     
     @Override
     @Transactional
-    public void delete(Integer id) {
+    public void delete(Long id) {
         if (!repository.existsById(id)) {
             throw new ModelNotFoundException("Item del menú no encontrado con ID: " + id);
         }
@@ -93,7 +93,7 @@ public class MenuItemServiceImpl implements MenuItemService {
     
     @Override
     @Transactional
-    public MenuItemDTO updateStock(Integer id, Integer newStock) {
+    public MenuItemDTO updateStock(Long id, Integer newStock) {
         MenuItem item = repository.findById(id)
             .orElseThrow(() -> new ModelNotFoundException("Item del menú no encontrado con ID: " + id));
         

@@ -31,7 +31,7 @@ public class MenuItemController {
     
     // Obtener item por ID
     @GetMapping("/{id}")
-    public ResponseEntity<MenuItemDTO> findById(@PathVariable("id") Integer id) {
+    public ResponseEntity<MenuItemDTO> findById(@PathVariable("id") Long id) {
         MenuItemDTO dto = service.findById(id);
         return ResponseEntity.ok(dto);
     }
@@ -72,7 +72,7 @@ public class MenuItemController {
     
     // Actualizar item completo
     @PutMapping("/{id}")
-    public ResponseEntity<MenuItemDTO> update(@PathVariable("id") Integer id, 
+    public ResponseEntity<MenuItemDTO> update(@PathVariable("id") Long id,
                                               @Valid @RequestBody MenuItemDTO dto) {
         MenuItemDTO updatedDto = service.update(dto, id);
         return ResponseEntity.ok(updatedDto);
@@ -80,7 +80,7 @@ public class MenuItemController {
     
     // Actualizar solo el stock
     @PatchMapping("/{id}/stock")
-    public ResponseEntity<MenuItemDTO> updateStock(@PathVariable("id") Integer id,
+    public ResponseEntity<MenuItemDTO> updateStock(@PathVariable("id") Long id,
                                                    @RequestParam Integer stock) {
         MenuItemDTO updatedDto = service.updateStock(id, stock);
         return ResponseEntity.ok(updatedDto);
@@ -88,7 +88,7 @@ public class MenuItemController {
     
     // Eliminar item
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") Integer id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }

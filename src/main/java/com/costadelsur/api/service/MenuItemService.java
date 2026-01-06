@@ -10,16 +10,16 @@ public interface MenuItemService {
     
     // CRUD básico
     List<MenuItemDTO> findAll();
-    MenuItemDTO findById(Integer id);
+    MenuItemDTO findById(Long id);
     MenuItemDTO save(MenuItemDTO dto);
-    MenuItemDTO update(MenuItemDTO dto, Integer id);
-    void delete(Integer id);
+    MenuItemDTO update(MenuItemDTO dto, Long id);
+    void delete(Long id);
     
     // Métodos específicos
     List<MenuItemDTO> findByCategory(String category);
     List<MenuItemDTO> findAvailableItems();
     List<MenuItemDTO> findPublishedItems();
-    MenuItemDTO updateStock(Integer id, Integer newStock);
+    MenuItemDTO updateStock(Long id, Integer newStock);
     
     // Paginación
     Page<MenuItemDTO> listPage(Pageable pageable);

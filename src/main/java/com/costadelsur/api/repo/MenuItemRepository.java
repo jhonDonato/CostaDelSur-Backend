@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface MenuItemRepository extends IGenericRepo<MenuItem, Integer> {
+public interface MenuItemRepository extends IGenericRepo<MenuItem, Long> {
     
     // Encontrar todos los items publicados
     List<MenuItem> findByPublishedTrue();

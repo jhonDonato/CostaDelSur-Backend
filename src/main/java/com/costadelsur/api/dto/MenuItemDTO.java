@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class MenuItemDTO {
     
-    private Integer id;
+    private Long id;
     
     @NotBlank(message = "El nombre es obligatorio")
     private String name;
