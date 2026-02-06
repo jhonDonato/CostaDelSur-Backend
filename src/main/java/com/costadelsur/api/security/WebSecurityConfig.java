@@ -20,6 +20,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
+import org.springframework.http.HttpMethod;
 
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
@@ -77,16 +78,18 @@ public class WebSecurityConfig {
                         .requestMatchers(antMatcher("/health")).permitAll()
                         .requestMatchers(antMatcher("/auth/login")).permitAll()
 
-                        // Endpoints públicos
-                        .requestMatchers(antMatcher("/api/upload/**")).permitAll() // ✅ Importante para Cloudinary
-                        .requestMatchers(antMatcher("/api/menu-items/**")).permitAll()
+                        // --- CAMBIO AQUÍ: Matchers más robustos ---
+                        // Permitimos GET a la raíz y a cualquier sub-ruta
+                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/menu-items")).permitAll()
+                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/menu-items/**")).permitAll()
+                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/discounts")).permitAll()
+                        .requestMatchers(antMatcher(HttpMethod.GET, "/api/discounts/**")).permitAll()
 
-                        // Mantengo estos por si acaso los usas, pero podrías borrarlos si son del proyecto viejo
-                        .requestMatchers(antMatcher("/roles/**")).permitAll()
-                        .requestMatchers(antMatcher("/usuarios/**")).permitAll()
-                        .requestMatchers(antMatcher("/uploads/**")).permitAll()
+                        .requestMatchers(antMatcher("/api/upload/**")).permitAll()
 
-                        // Rutas protegidas
+                        // Protegemos el resto de operaciones (POST, PUT, DELETE)
+                        .requestMatchers(antMatcher("/api/menu-items/**")).authenticated()
+                        .requestMatchers(antMatcher("/api/discounts/**")).authenticated()
                         .requestMatchers(antMatcher("/orders/**")).authenticated()
 
                         .anyRequest().authenticated()

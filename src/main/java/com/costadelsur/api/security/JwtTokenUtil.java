@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 //Clase S1
 @Component
 public class JwtTokenUtil implements Serializable {
-    
 
     private final long JWT_TOKEN_VALIDITY = 5 * 60 * 60 * 1000; //5 horas;
 
@@ -69,12 +68,15 @@ public class JwtTokenUtil implements Serializable {
 
     private boolean isTokenExpired(String token){
         final Date expiration = getExpirationDateFromToken(token);
+        System.out.println("DEBUG [JwtUtil]: Expira el: " + expiration + " - Hora actual: " + new Date());
         return expiration.before(new Date());
     }
 
     public boolean validateToken(String token, UserDetails userDetails){
         final String username = getUsernameFromToken(token);
-        return (username.equalsIgnoreCase(userDetails.getUsername()) && !isTokenExpired(token));
+        boolean isExpired = isTokenExpired(token);
+        System.out.println("DEBUG [JwtUtil]: Validando usuario: " + username + " - ¿Expirado?: " + isExpired);
+        return (username.equalsIgnoreCase(userDetails.getUsername()) && !isExpired);
     }
 
 

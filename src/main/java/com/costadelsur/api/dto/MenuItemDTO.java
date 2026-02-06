@@ -1,5 +1,6 @@
 package com.costadelsur.api.dto;
 
+import com.costadelsur.api.model.Discount;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -35,4 +36,6 @@ public class MenuItemDTO {
     
     @NotNull(message = "El estado de publicación es obligatorio")
     private Boolean published = true;
+
+    private Discount discount;
 }

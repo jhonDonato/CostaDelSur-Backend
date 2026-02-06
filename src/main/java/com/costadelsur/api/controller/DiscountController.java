@@ -2,7 +2,7 @@ package com.costadelsur.api.controller;
 
 import com.costadelsur.api.dto.DiscountRequestDTO;
 import com.costadelsur.api.model.Discount;
-import com.costadelsur.api.service.impl.DiscountService;
+import com.costadelsur.api.service.DiscountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

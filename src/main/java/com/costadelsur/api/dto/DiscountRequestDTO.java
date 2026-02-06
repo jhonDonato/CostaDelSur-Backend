@@ -12,5 +12,9 @@ public class DiscountRequestDTO {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private DiscountModality modality;
-    private List<Long> menuItemIds; // IDs de los platos a afectar
+
+    private List<Long> menuItemIds;
+
+    private MenuItemDTO newPromoItem;
+
 }

@@ -22,4 +22,6 @@ public interface MenuItemRepository extends IGenericRepo<MenuItem, Long> {
     
     // Encontrar por categoría y publicados
     List<MenuItem> findByCategoryAndPublishedTrue(String category);
+
+    List<MenuItem> findByDiscountId(Long discountId);
 }
